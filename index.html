@@ -559,6 +559,40 @@ window.addEventListener('load', function(){ processOneEffects() });
 
 
 <div></div>
+<!-- Custom fix (not part of the original page-builder export): the page's own
+     JavaScript sometimes re-renders the header/mobile-menu logo using the PREVIOUS
+     owner's saved logo image (fetched from their onecdn.io account) instead of our
+     local Spar-Helden24 logo. This watches for that and forces it back to our own
+     logo file whenever it happens, including right after the page loads and any
+     time later the framework tries to swap it again. -->
+<script>
+(function () {
+  var OLD_LOGO_MARKER = "ab1fb463-440c-4397-bf0e-a566b6658372";
+  var CORRECT_LOGO_SRC = "./SparHelden24_files/md2x";
+
+  function fixLogos() {
+    document.querySelectorAll('img').forEach(function (img) {
+      var src = img.getAttribute('src') || '';
+      if (src.indexOf(OLD_LOGO_MARKER) !== -1) {
+        img.setAttribute('src', CORRECT_LOGO_SRC);
+        img.removeAttribute('srcset');
+      }
+    });
+  }
+
+  fixLogos();
+  document.addEventListener('DOMContentLoaded', fixLogos);
+  window.addEventListener('load', fixLogos);
+
+  var observer = new MutationObserver(fixLogos);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['src', 'srcset'],
+    subtree: true,
+    childList: true
+  });
+})();
+</script>
 <!-- Custom addition (not part of the original page-builder export): makes the
      contact form near "Noch eine Frage?" actually submit through Web3Forms
      and show a thank-you message without leaving the page or needing a
